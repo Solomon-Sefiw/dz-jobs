@@ -199,7 +199,7 @@ const AboutMe: React.FC = () => {
               variant="contained"
               color="primary"
               size="large"
-              href="#contact"
+              href="contact"
               sx={{ mb: { xs: 2, sm: 0 }, width: { xs: '100%', sm: 'auto' } }}
             >
               Contact Me
@@ -208,7 +208,7 @@ const AboutMe: React.FC = () => {
               variant="outlined"
               color="primary"
               size="large"
-              href="#projects"
+              href="projects"
               sx={{ ml: { sm: 2 }, width: { xs: '100%', sm: 'auto' } }}
             >
               View My Work
