@@ -13,6 +13,8 @@ import {
   ListItemText,
   BottomNavigation,
   BottomNavigationAction,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
 import {
   Brightness4,
@@ -26,23 +28,29 @@ import {
 } from '@mui/icons-material';
 import { useAppDispatch, useAppSelector } from '../features/hooks';
 import { toggleDarkMode } from '../features/themeSlice';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const Header: React.FC = () => {
   const darkMode = useAppSelector((state) => state.theme.darkMode);
   const dispatch = useAppDispatch();
-  const [value, setValue] = useState(0);
+  const location = useLocation(); // Get current route
+  const navigate = useNavigate(); // Programmatically navigate
   const [isProfileOpen, setProfileOpen] = useState(false);
 
+  // Define menu items with paths
   const menuItems = [
-    { label: 'About Me', href: '#about', icon: <AccountCircle /> },
-    { label: 'Skills', href: '#skills', icon: <Work /> },
-    { label: 'Projects', href: '#projects', icon: <PinDropRounded /> },
-    { label: 'Contact', href: '#contact', icon: <Phone /> },
+    { label: 'About Me', href: '/about', icon: <AccountCircle /> },
+    { label: 'Skills', href: '/skills', icon: <Work /> },
+    { label: 'Projects', href: '/projects', icon: <PinDropRounded /> },
+    { label: 'Contact', href: '/contact', icon: <Phone /> },
   ];
 
-  const handleProfileToggle = () => {
-    setProfileOpen(!isProfileOpen);
-  };
+  // Determine selected tab based on URL
+  const currentIndex = menuItems.findIndex((item) => item.href === location.pathname);
+
+  // Detect mobile screens
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
     <>
@@ -57,7 +65,7 @@ const Header: React.FC = () => {
             Solomon Sefiw
           </Typography>
 
-          {/* Desktop Nav */}
+          {/* Desktop Navigation */}
           <Box sx={{ display: { xs: 'none', md: 'block' } }}>
             {menuItems.map((item) => (
               <Button key={item.label} color="inherit" href={item.href} sx={{ fontWeight: 'bold' }}>
@@ -67,17 +75,19 @@ const Header: React.FC = () => {
           </Box>
 
           {/* Profile Icon */}
-          <IconButton color="inherit" onClick={handleProfileToggle}>
+          <IconButton color="inherit" onClick={() => setProfileOpen(!isProfileOpen)}>
             <AccountCircle />
           </IconButton>
         </Toolbar>
       </AppBar>
 
-      {/* Bottom Navigation for Mobile only */}
+      {/* Bottom Navigation for Mobile Only */}
       <Box sx={{ display: { xs: 'block', md: 'none' } }}>
         <BottomNavigation
-          value={value}
-          onChange={(_, newValue) => setValue(newValue)}
+          value={currentIndex} // Set the selected index based on current route
+          onChange={(_, newValue) => {
+            navigate(menuItems[newValue].href); // Navigate without full reload
+          }}
           showLabels
           sx={{
             position: 'fixed',
@@ -92,17 +102,21 @@ const Header: React.FC = () => {
           {menuItems.map((item) => (
             <BottomNavigationAction
               key={item.label}
-              label={item.label}
+              label={isMobile ? '' : item.label}
               icon={item.icon}
-              href={item.href}
-              sx={{ color: darkMode ? '#fff' : '#1976d2' }}
+              sx={{
+                color: darkMode ? '#fff' : '#1976d2',
+                '&.Mui-selected': {
+                  color: darkMode ? '#1976d2' : '#333', // Adjust selected icon color
+                },
+              }}
             />
           ))}
         </BottomNavigation>
       </Box>
 
       {/* Right Sidebar for Profile */}
-      <Drawer anchor="right" open={isProfileOpen} onClose={handleProfileToggle}>
+      <Drawer anchor="right" open={isProfileOpen} onClose={() => setProfileOpen(false)}>
         <List sx={{ width: 250 }}>
           <ListItemButton disableRipple>
             <Typography variant="h6" fontWeight="bold">
